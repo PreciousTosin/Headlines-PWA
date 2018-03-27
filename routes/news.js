@@ -7,7 +7,7 @@ function retrieveNews() {
   const options = {
     uri: 'https://newsapi.org/v2/top-headlines',
     qs: {
-      apiKey: '73c7461f52904c29887e309a2075087d', // -> uri + '?access_token=xxxxx%20xxxxx'
+      apiKey: process.env.NEWSAPI, // -> uri + '?access_token=xxxxx%20xxxxx'
       country: 'ng',
     },
     headers: {
@@ -15,8 +15,10 @@ function retrieveNews() {
     },
     json: true, // Automatically parses the JSON string in the response
   };
-  return new Promise((resolve) => {
-    requestPromise(options).then(data => resolve(data));
+  return new Promise((resolve, reject) => {
+    requestPromise(options)
+      .then(data => resolve(data))
+      .catch(error => reject(error));
   });
 }
 
