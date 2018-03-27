@@ -4,14 +4,14 @@
  * Module dependencies.
  */
 
-import debugging from 'debug';
-import http from 'http';
-import app from '../app';
+const debugging = require('debug');
+const http = require('http');
+const app = require('./app');
 
 // const debug = require('debug')('webtrack-assessment:server');
 // const http = require('http');
 
-const debug = debugging('webtrack-assessment:server');
+const debug = debugging('Headlines-PWA:server');
 
 /**
  * Normalize a port into a number, string, or false.
