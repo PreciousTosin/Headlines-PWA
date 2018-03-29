@@ -6,6 +6,7 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const webpack = require('webpack');
+const handlebars = require('express-handlebars');
 const config = require('../webpack.dev.config');
 
 const index = require('../routes/index');
@@ -13,7 +14,19 @@ const news = require('../routes/news');
 
 require('dotenv').config();
 
+const hbs = handlebars.create({
+  defaultLayout: 'layout',
+  extname: '.hbs',
+  partialsDir: [
+    'views/shared/',
+    'views/partials/',
+  ],
+});
+
 const app = express();
+
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
 
 let compiler = '';
 let webpackDevMiddleware = '';
