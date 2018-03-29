@@ -24,7 +24,8 @@ function retrieveNews() {
 
 router.get('/', (req, res) => {
   retrieveNews()
-    .then(response => res.json(response));
+    .then(response => res.json(response))
+    .catch(error => res.send(error));
 });
 
 module.exports = router;
