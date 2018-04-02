@@ -1,1 +1,12 @@
-<h3>INJECTED HEADLINES!!!</h3>
+<h3>TOP ARTICLES</h3>
+<hr>
+
+<div class="news--headlines">
+  {{#each completeNews }}
+    <div class="headline">
+      <h5>{{author}}</h5>
+      <p>{{description}}</p>
+      <hr>
+    </div>
+  {{/each}}
+</div>
