@@ -7,6 +7,7 @@ const webpack = require('webpack');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 // const HandlebarsPlugin = require('handlebars-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
 
 // This is the development configuration.
 // It is focused on developer experience and fast rebuilds.
@@ -137,7 +138,9 @@ module.exports = {
     // a plugin that prints an error when you attempt to do this.
     // See https://github.com/facebookincubator/create-react-app/issues/240
     new CaseSensitivePathsPlugin(),
-
+    new ServiceWorkerWebpackPlugin({
+      entry: path.join(__dirname, './src/sw/sw.js'),
+    }),
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
