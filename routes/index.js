@@ -109,21 +109,26 @@ async function populateNewsArray(country, sources, page = 1) {
 }
 
 router.get('/', (req, res) => {
-  completeNews.splice(0, completeNews.length);
+  // completeNews.splice(0, completeNews.length);
   if (process.env.ENV === 'production') {
     // res.sendFile(path.join(__dirname, '../public_build/index.html'));
   }
-  retrieveNews(undefined, undefined, 10)
-    .then((response) => {
-      // newsArray = response.articles.splice(0, 100);
-      // completeNews.push(response.articles);
-      response.articles.forEach(article => completeNews.push(article));
-      console.log(completeNews.length);
-      res.render('post', { completeNews });
-      populateNewsArray()
-        .then(results => console.log(results[1].author));
-    })
-    .catch(error => console.log(error));
+
+  if (completeNews.length === 0) {
+    retrieveNews(undefined, undefined, 10)
+      .then((response) => {
+        // newsArray = response.articles.splice(0, 100);
+        // completeNews.push(response.articles);
+        response.articles.forEach(article => completeNews.push(article));
+        console.log(completeNews.length);
+        res.render('post', { completeNews });
+        populateNewsArray()
+          .then(results => console.log(results[1].author));
+      })
+      .catch(error => console.log(error));
+  } else {
+    res.render('post', { completeNews });
+  }
 });
 
 module.exports = router;
