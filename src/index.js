@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import 'bootstrap';
+import io from 'socket.io-client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 import '../public/stylesheets/styles.css';
@@ -95,6 +96,8 @@ function registerServiceWorker() {
 }
 
 $(document).ready(() => {
+// eslint-disable-next-line no-unused-vars
+  const socket = io(); // connect to server
   // displayPosts();
   registerServiceWorker();
 });

@@ -87,6 +87,15 @@ function onListening() {
   debug(`Listening on ${bind}`);
 }
 
+// Loading socket.io
+const io = require('socket.io').listen(server);
+
+// When a client connects, we note it in the console
+// eslint-disable-next-line no-unused-vars
+io.sockets.on('connection', (socket) => {
+  console.log('A client is connected!');
+});
+
 /**
  * Listen on provided port, on all network interfaces.
  */
