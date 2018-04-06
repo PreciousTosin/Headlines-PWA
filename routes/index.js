@@ -131,4 +131,8 @@ router.get('/', (req, res) => {
   }
 });
 
+router.get('/skeleton', (req, res) => {
+  res.render('post');
+});
+
 module.exports = router;

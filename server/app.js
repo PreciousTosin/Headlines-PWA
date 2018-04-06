@@ -71,6 +71,7 @@ if (process.env.ENV !== 'production') {
 }
 
 app.use('/', index);
+app.use('/skeleton', index);
 app.use('/news', news);
 
 // catch 404 and forward to error handler
