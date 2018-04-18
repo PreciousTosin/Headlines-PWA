@@ -31,6 +31,27 @@ function retrieveNews(country = '', sources = '', page = 1) {
   });
 }
 
+function retrieveSources(country = '', language = '') {
+  const options = {
+    uri: 'https://newsapi.org/v2/sources',
+    qs: {
+      apiKey: process.env.NEWSAPI, // -> uri + '?access_token=xxxxx%20xxxxx'
+      category: 'general',
+      country,
+      language,
+    },
+    headers: {
+      'User-Agent': 'Request-Promise',
+    },
+    json: true, // Automatically parses the JSON string in the response
+  };
+  return new Promise((resolve, reject) => {
+    requestPromise(options)
+      .then(data => resolve(data))
+      .catch(error => reject(error));
+  });
+}
+
 /* function populateNewsArray(country, sources, page = 1) {
   const completeNews = [];
   // const newsPage = page;
@@ -115,7 +136,7 @@ router.get('/', (req, res) => {
   }
 
   if (completeNews.length === 0) {
-    retrieveNews(undefined, undefined, 10)
+    retrieveNews(undefined, undefined, 1)
       .then((response) => {
         // newsArray = response.articles.splice(0, 100);
         // completeNews.push(response.articles);
@@ -133,6 +154,15 @@ router.get('/', (req, res) => {
 
 router.get('/skeleton', (req, res) => {
   res.render('post', { completeNews });
+});
+
+router.get('/search', (req, res) => {
+  retrieveSources(undefined, undefined).then((response) => {
+    const sources = [];
+    response.sources.forEach(source => sources.push({ id: source.country, name: 'name' }));
+    res.send(sources);
+  });
+  // res.send(req.query);
 });
 
 module.exports = { router, completeNews };
