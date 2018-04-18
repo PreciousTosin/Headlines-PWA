@@ -8,7 +8,8 @@ function retrieveNews() {
     uri: 'https://newsapi.org/v2/top-headlines',
     qs: {
       apiKey: process.env.NEWSAPI, // -> uri + '?access_token=xxxxx%20xxxxx'
-      country: 'ng',
+      category: 'general',
+      /* country: 'ng', */
     },
     headers: {
       'User-Agent': 'Request-Promise',
@@ -24,7 +25,8 @@ function retrieveNews() {
 
 router.get('/', (req, res) => {
   retrieveNews()
-    .then(response => res.json(response));
+    .then(response => res.json(response))
+    .catch(error => res.send(error));
 });
 
 module.exports = router;

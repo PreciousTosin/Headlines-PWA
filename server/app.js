@@ -6,14 +6,29 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const webpack = require('webpack');
+const handlebars = require('express-handlebars');
 const config = require('../webpack.dev.config');
 
 const index = require('../routes/index');
 const news = require('../routes/news');
 
+const newsArray = index.completeNews;
+
 require('dotenv').config();
 
+const hbs = handlebars.create({
+  defaultLayout: 'layout',
+  extname: '.hbs',
+  partialsDir: [
+    'views/shared/',
+    'views/partials/',
+  ],
+});
+
 const app = express();
+
+app.engine('hbs', hbs.engine);
+app.set('view engine', 'hbs');
 
 let compiler = '';
 let webpackDevMiddleware = '';
@@ -57,7 +72,8 @@ if (process.env.ENV !== 'production') {
   app.use(webpackHotMiddleware);
 }
 
-app.use('/', index);
+app.use('/', index.router);
+app.use('/skeleton', index.router);
 app.use('/news', news);
 
 // catch 404 and forward to error handler
@@ -78,5 +94,5 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-module.exports = app;
+module.exports = { app, newsArray };
 
