@@ -1,9 +1,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import 'bootstrap';
 import io from 'socket.io-client';
+import idb from 'idb';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 import '../public/stylesheets/styles.css';
+
+import postTemplate from '../views/post.hbs';
 
 // import appendPostBody from './ui';
 
@@ -95,10 +98,95 @@ function registerServiceWorker() {
     }); */
 }
 
+function createDatabase() {
+  if (!navigator.serviceWorker) {
+    return Promise.resolve();
+  }
+  return idb.open('newsapi', 1, (upgradeDb) => {
+    const store = upgradeDb.createObjectStore('newsStore', {
+      keyPath: 'publishedAt',
+    });
+  });
+}
+
+/* function storeNews(news) {
+  // const parsedNews = JSON.parse(news);
+  createDatabase().then((db) => {
+    if (!db && news.length > 0) return;
+    console.log('STORING NEWS!!!');
+    const store = db.transaction('newsStore', 'readwrite')
+      .objectStore('newsStore');
+    news.forEach(newsItem => store.put(newsItem));
+  });
+} */
+
+function idbMethods(dbPromise) {
+  return {
+    get(key) {
+      return dbPromise().then(db =>
+        db.transaction('newsStore')
+          .objectStore('newsStore').get(key));
+    },
+    set(news) {
+      console.log('STORING DATA IN DATABASE!!!!');
+      return dbPromise().then((db) => {
+        const tx = db.transaction('newsStore', 'readwrite');
+        news.forEach(newsItem => tx.objectStore('newsStore').put(newsItem));
+        return tx.complete;
+      });
+    },
+    delete(key) {
+      return dbPromise().then((db) => {
+        const tx = db.transaction('newsStore', 'readwrite');
+        tx.objectStore('newsStore').delete(key);
+        return tx.complete;
+      });
+    },
+    clear() {
+      console.log('CLEARING DATABASE!!!!');
+      return dbPromise().then((db) => {
+        const tx = db.transaction('newsStore', 'readwrite');
+        tx.objectStore('newsStore').clear();
+        return tx.complete;
+      });
+    },
+    keys() {
+      return dbPromise().then((db) => {
+        const tx = db.transaction('newsStore');
+        const keys = [];
+        const store = tx.objectStore('newsStore');
+
+        // This would be store.getAllKeys(), but it isn't supported by Edge or Safari.
+        // openKeyCursor isn't supported by Safari, so we fall back
+        (store.iterateKeyCursor || store.iterateCursor).call(store, (cursor) => {
+          if (!cursor) return;
+          keys.push(cursor.key);
+          cursor.continue();
+        });
+
+        return tx.complete.then(() => keys);
+      });
+    },
+  };
+}
+
+function addNews(data) {
+  console.log('ADDING NEWS!!!');
+  document.querySelector('.container').innerHTML = postTemplate({ completeNews: data });
+}
+
 $(document).ready(() => {
-// eslint-disable-next-line no-unused-vars
-  const socket = io(); // connect to server
-  // displayPosts();
+  idbMethods(createDatabase).clear();
   registerServiceWorker();
+  // createDatabase();
+  // eslint-disable-next-line no-unused-vars
+  const socket = io(); // connect to server
+  socket.on('message', (data) => {
+    console.log(data);
+    // storeNews(data);
+    if (data.length !== 0) idbMethods(createDatabase).set(data);
+    addNews(data);
+  });
+  // displayPosts();
 });
 

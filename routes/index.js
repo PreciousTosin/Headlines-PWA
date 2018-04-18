@@ -132,7 +132,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/skeleton', (req, res) => {
-  res.render('post');
+  res.render('post', { completeNews });
 });
 
-module.exports = router;
+module.exports = { router, completeNews };
