@@ -6,7 +6,7 @@
 
 const debugging = require('debug');
 const http = require('http');
-const app = require('./app');
+const { app, newsArray } = require('./app');
 
 // const debug = require('debug')('webtrack-assessment:server');
 // const http = require('http');
@@ -93,7 +93,8 @@ const io = require('socket.io').listen(server);
 // When a client connects, we note it in the console
 // eslint-disable-next-line no-unused-vars
 io.sockets.on('connection', (socket) => {
-  console.log('A client is connected!');
+  console.log('A client is connected!', newsArray.length);
+  socket.send(newsArray);
 });
 
 /**

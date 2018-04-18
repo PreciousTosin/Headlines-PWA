@@ -12,6 +12,8 @@ const config = require('../webpack.dev.config');
 const index = require('../routes/index');
 const news = require('../routes/news');
 
+const newsArray = index.completeNews;
+
 require('dotenv').config();
 
 const hbs = handlebars.create({
@@ -70,8 +72,8 @@ if (process.env.ENV !== 'production') {
   app.use(webpackHotMiddleware);
 }
 
-app.use('/', index);
-app.use('/skeleton', index);
+app.use('/', index.router);
+app.use('/skeleton', index.router);
 app.use('/news', news);
 
 // catch 404 and forward to error handler
@@ -92,5 +94,5 @@ app.use((err, req, res) => {
   res.render('error');
 });
 
-module.exports = app;
+module.exports = { app, newsArray };
 
