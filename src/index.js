@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import runtime from 'serviceworker-webpack-plugin/lib/runtime';
 import '../public/stylesheets/styles.css';
 
+import { countries, sources } from './source-country';
 import postTemplate from '../views/post.hbs';
 
 // import appendPostBody from './ui';
@@ -167,15 +168,39 @@ function idbMethods(dbPromise) {
         return tx.complete.then(() => keys);
       });
     },
+    retrieveAll() {
+      return dbPromise().then(db => db.transaction('newsStore')
+        .objectStore('newsStore').getAll()).then(allObjs => allObjs);
+    },
   };
+}
+
+function fillCountrySelect() {
+  countries.forEach((country) => {
+    const sel = document.getElementById('country');
+    const opt = document.createElement('option');
+    opt.value = country.id;
+    opt.text = country.name;
+    sel.add(opt, null);
+  });
+
+  sources.forEach((source) => {
+    const sel = document.getElementById('source');
+    const opt = document.createElement('option');
+    opt.value = source.id;
+    opt.text = source.name;
+    sel.add(opt, null);
+  });
 }
 
 function addNews(data) {
   console.log('ADDING NEWS!!!');
   document.querySelector('.container').innerHTML = postTemplate({ completeNews: data });
+  fillCountrySelect();
 }
 
 $(document).ready(() => {
+  fillCountrySelect();
   idbMethods(createDatabase).clear();
   registerServiceWorker();
   // createDatabase();
@@ -184,8 +209,13 @@ $(document).ready(() => {
   socket.on('message', (data) => {
     console.log(data);
     // storeNews(data);
-    if (data.length !== 0) idbMethods(createDatabase).set(data);
-    addNews(data);
+    if (data.length !== 0) {
+      idbMethods(createDatabase).set(data)
+        .then(() => {
+          idbMethods(createDatabase).retrieveAll().then(allData => addNews(allData));
+        });
+    }
+    // addNews(data.reverse());
   });
   // displayPosts();
 });
