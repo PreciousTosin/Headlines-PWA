@@ -157,11 +157,23 @@ router.get('/skeleton', (req, res) => {
 });
 
 router.get('/search', (req, res) => {
-  retrieveSources(undefined, undefined).then((response) => {
+  completeNews.length = 0;
+  console.log(req.query);
+  /* retrieveSources(undefined, undefined).then((response) => {
     const sources = [];
     response.sources.forEach(source => sources.push({ id: source.country, name: 'name' }));
     res.send(sources);
-  });
+  }); */
+  retrieveNews(req.query.country, undefined, 1)
+    .then((response) => {
+      response.articles.forEach(article => completeNews.push(article));
+      console.log(completeNews.length);
+      res.send(completeNews);
+      populateNewsArray()
+        .then((results) => {
+          console.log(results[1].author);
+        });
+    }).catch(error => console.log(error));
   // res.send(req.query);
 });
 
