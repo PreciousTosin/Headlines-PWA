@@ -11,7 +11,9 @@ import postTemplate from '../views/post.hbs';
 
 // import appendPostBody from './ui';
 
+window.Promise = require('bluebird');
 const $ = require('jquery');
+require('isomorphic-fetch');
 
 /* function displayPosts() {
   const element = $('.headlines--container');
@@ -104,7 +106,7 @@ function createDatabase() {
     return Promise.resolve();
   }
   return idb.open('newsapi', 1, (upgradeDb) => {
-    const store = upgradeDb.createObjectStore('newsStore', {
+    upgradeDb.createObjectStore('newsStore', {
       keyPath: 'publishedAt',
     });
   });
@@ -194,12 +196,54 @@ function fillCountrySelect() {
 }
 
 function addNews(data) {
+  // const reversedData = data.reverse();
   console.log('ADDING NEWS!!!');
-  document.querySelector('.container').innerHTML = postTemplate({ completeNews: data });
-  fillCountrySelect();
+  document.querySelector('.posts').innerHTML = postTemplate({ completeNews: data });
+  /* if (!document.querySelector('.posts').hasChildNodes()) {} */
+  // fillCountrySelect();
+}
+
+async function createPageContent(data) {
+  idbMethods(createDatabase).set(data)
+    .then(() => {
+      idbMethods(createDatabase).retrieveAll().then((allData) => {
+        addNews(allData); // add news data to template
+        // addEvents(); // add event listeners
+      });
+    });
+}
+
+function addEvents() {
+  const sourceSelect = document.querySelector('#source');
+  const countrySelect = document.querySelector('#country');
+  sourceSelect.addEventListener('change', () => {
+    console.log('SOURCE SELECTOR EVENT FIRED!!!!');
+    console.log(sourceSelect.options[sourceSelect.selectedIndex].value);
+    fetch('/search').then(response => response.json()).then(data => console.log(data));
+    // fetch('/search?source=axios')
+    //  .then(response => response.json())
+    //  .then(data => console.log(data));
+  });
+
+  countrySelect.addEventListener('change', () => {
+    console.log('COUNTRY SELECTOR EVENT FIRED!!!!');
+    const selectValue = countrySelect.options[countrySelect.selectedIndex].value;
+    // fetch('/search').then(response => response.json()).then(data => console.log(data));
+    fetch(`/search?country=${selectValue}`)
+      .then(response => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.length !== 0) {
+          idbMethods(createDatabase).clear();
+          // createPageContent(data);
+          createPageContent(data).then(/* () => registerServiceWorker() */);
+        }
+      });
+  });
 }
 
 $(document).ready(() => {
+  addEvents();
   fillCountrySelect();
   idbMethods(createDatabase).clear();
   registerServiceWorker();
@@ -210,10 +254,7 @@ $(document).ready(() => {
     console.log(data);
     // storeNews(data);
     if (data.length !== 0) {
-      idbMethods(createDatabase).set(data)
-        .then(() => {
-          idbMethods(createDatabase).retrieveAll().then(allData => addNews(allData));
-        });
+      createPageContent(data);
     }
     // addNews(data.reverse());
   });
