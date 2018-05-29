@@ -60,7 +60,11 @@ module.exports = {
         include: path.join(__dirname, './src'),
         loader: 'babel-loader',
         options: {
-          presets: ['env'],
+          presets: [
+            ['env', {
+              targets: { node: '8' }, // specify targets here
+            }],
+          ],
         },
       },
       {
